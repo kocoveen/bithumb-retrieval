@@ -11,7 +11,7 @@
  * @param {string[]} [params.states] - Optional array of states
  * @returns {string} The formatted query string
  */
-export function createQuery(params) {
+export function createOrderQuery(params) {
 	const { market, limit, page, order_by, uuids, states } = params;
 
 	let query = `market=${market}&limit=${limit}&page=${page}&order_by=${order_by}`;
@@ -28,20 +28,3 @@ export function createQuery(params) {
 
 	return query;
 }
-
-// Example usage
-const apiUrl = 'https://api.bithumb.com';
-const params = {
-	market: 'KRW-XRP',
-	limit: 100,
-	page: 1,
-	order_by: 'desc',
-	uuids: [],
-	states: ['wait', 'done', 'cancel']
-};
-
-const query = createQuery(params);
-console.log(`${apiUrl}?${query}`);
-
-// Export the function for use in other files
-module.exports = createQuery;

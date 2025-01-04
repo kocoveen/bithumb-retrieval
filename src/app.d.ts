@@ -10,4 +10,12 @@ declare global {
 	}
 }
 
+import { IStaticMethods } from 'flyonui/flyonui';
+
+declare global {
+	interface Window {
+		HSStaticMethods: IStaticMethods;
+	}
+}
+
 export {};

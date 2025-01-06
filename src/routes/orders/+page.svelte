@@ -168,7 +168,12 @@
 		<td>{order.price}</td>
 		<td>{order.volume * order.price}</td> <!-- value -->
 		<td>{order.paid_fee}</td>
-		<td>{order.volume * order.price - order.paid_fee}</td> <!-- settlement_amount -->
+
+		{#if order.side === 'ask'}
+			<td>{order.volume * order.price - order.paid_fee}</td>
+		{:else}
+			<td>-{order.volume * order.price - order.paid_fee}</td>
+		{/if}<!-- settlement_amount -->
 <!--		<td><span class="badge badge-soft badge-success badge-sm">In Stock</span></td>-->
 		<td>
 			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">

@@ -19,17 +19,17 @@ export async function load() {
 	// 토큰 생성
 	const jwtToken = await generateJWT(query, API_KEY, SECRET_KEY);
 
-	return { jwtToken, apiUrl, query };
+	// return { jwtToken, apiUrl, query };
 
 	// 응답
-	// const response = await fetch(`${apiUrl}/v1/orders?${query}`, {
-	// 	method: 'GET',
-	// 	headers: {
-	// 		Authorization: `Bearer ${jwtToken}`,
-	// 		'Content-Type': 'application/json'
-	// 	}
-	// });
-	//
-	// const data = await response.json();
-	// return { data };
+	const response = await fetch(`${apiUrl}/v1/orders?${query}`, {
+		method: 'GET',
+		headers: {
+			Authorization: `Bearer ${jwtToken}`,
+			'Content-Type': 'application/json'
+		}
+	});
+
+	const data = await response.json();
+	return { data };
 }

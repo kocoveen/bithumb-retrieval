@@ -8,7 +8,7 @@ export async function load() {
 
 	// 쿼리 만들기 (원하는 param JSON 형태로)
 	const query = createOrderQuery({
-		market: 'KRW-XRP',
+		// market: 'KRW-XRP',
 		limit: 100,
 		page: 1,
 		order_by: 'desc',

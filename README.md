@@ -1,38 +1,9 @@
-# sv
+## 사용법
+1. `git clone https://github.com/kocoveen/bithumb-retrieval.git`으로 프로젝트 클론
+2. bithumb api 를 /.env 파일에 작성
+  - API_KEY=~~~
+  - SECRET_KEY=~~~
+3. 터미널에서 npm run dev로 실행
+4. `localhost:5173/orders` 등 들어가서 확인
 
-Everything you need to build a Svelte project, powered by [`sv`](https://github.com/sveltejs/cli).
 
-## Creating a project
-
-If you're seeing this, you've probably already done this step. Congrats!
-
-```bash
-# create a new project in the current directory
-npx sv create
-
-# create a new project in my-app
-npx sv create my-app
-```
-
-## Developing
-
-Once you've created a project and installed dependencies with `npm install` (or `pnpm install` or `yarn`), start a development server:
-
-```bash
-npm run dev
-
-# or start the server and open the app in a new browser tab
-npm run dev -- --open
-```
-
-## Building
-
-To create a production version of your app:
-
-```bash
-npm run build
-```
-
-You can preview the production build with `npm run preview`.
-
-> To deploy your app, you may need to install an [adapter](https://svelte.dev/docs/kit/adapters) for your target environment.

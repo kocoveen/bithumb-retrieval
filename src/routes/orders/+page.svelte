@@ -95,7 +95,7 @@
 	}
 
 	function getTotalSettlement() {
-		return filteredOrders.map(o => o.volume * o.price - o.paid_fee).reduce(function (x, y) {
+		return filteredOrders.map(o => o.side === 'bid' ? -(o.volume * o.price - o.paid_fee) : (o.volume * o.price - o.paid_fee)).reduce((x, y) => {
 			return x + y;
 		}, 0);
 	}
@@ -113,8 +113,13 @@
 		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 	}
 
+	function formatNumber(number) {
+		return number.toLocaleString('en-US'); // 세 자리마다 쉼표 추가
+	}
+
+
 	let dataAssetsOptions = {
-		"placeholder": "찾을 자산을 선택하세요.",
+		"placeholder": "Select multiple options...",
 		"toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
 		"toggleClasses": "advance-select-toggle",
 		"toggleSeparators": {
@@ -193,7 +198,7 @@
 		<div class="max-w-sm">
 			<select
 				id="multi-cond-count"
-				multiple
+				multiple=""
 				bind:value={selectedAssets}
 				onchange={applyAllFilters}
 				data-select='{JSON.stringify(dataAssetsOptions)}'
@@ -208,23 +213,21 @@
 
 		<div class="flex flex-wrap gap-2">
 			<button type="button" id="clear-btn" class="btn btn-outline btn-primary btn-sm" onclick={() => {
-    selectedAssets = [];
-    applyAllFilters();
-  }}>
-				Clear
-			</button>
+				selectedAssets = [];
+				applyAllFilters();
+  		}}>Clear</button>
 		</div>
 
-		<div class="flex flex-1 items-center justify-end gap-3">
-			<div class="w-full max-w-md mx-auto shadow-md rounded-lg overflow-hidden">
+		<div class="flex flex-1 justify-end gap-3">
+			<div class="w-full max-w-md shadow-md rounded-lg overflow-hidden">
 				<div class="divide-y divide-gray-200">
 					<div class="px-4 py-5 sm:p-6 grid grid-cols-2 gap-4">
-						<div class="text-sm font-medium">거래금액 합계</div>
-						<div class="text-sm text-right" id="totalVolume">{getTotalValue()} KRW</div>
+						<div class="text font-medium">거래금액 합계</div>
+						<div class="text text-right" id="totalVolume">{formatNumber(getTotalValue())} KRW</div>
 					</div>
 					<div class="px-4 py-5 sm:p-6 grid grid-cols-2 gap-4">
-						<div class="text-sm font-medium">정산금액 합계 (매도 - 매수)</div>
-						<div class="text-sm text-right" id="totalSettlement">{getTotalSettlement()} KRW</div>
+						<div class="text font-medium">정산금액 합계</div>
+						<div class="text text-right" id="totalSettlement">{formatNumber(getTotalSettlement())} KRW</div>
 					</div>
 				</div>
 			</div>
@@ -330,16 +333,15 @@
 		<td>{formatDate(order.created_at)}</td>
 		<td>{order.market}</td>
 		<td>{order.state}</td>
-		<td>{order.volume}</td>
-		<td>{order.price}</td>
-		<td>{order.volume * order.price}</td> <!-- value -->
-		<td>{order.paid_fee}</td>
-
+		<td>{formatNumber(order.volume)}</td>
+		<td>{formatNumber(order.price)}</td>
+		<td>{formatNumber(order.volume * order.price)}</td> <!-- 거래 금액 -->
+		<td>{formatNumber(order.paid_fee)}</td> <!-- 수수료 -->
 		{#if order.side === 'bid'}
-			<td>-{order.volume * order.price - order.paid_fee}</td>
+			<td>-{formatNumber(order.volume * order.price - order.paid_fee)}</td>
 		{:else}
-			<td>{order.volume * order.price - order.paid_fee}</td>
-		{/if}<!-- settlement_amount -->
+			<td>{formatNumber(order.volume * order.price - order.paid_fee)}</td>
+		{/if} <!-- 정산 금액 -->
 <!--		<td><span class="badge badge-soft badge-success badge-sm">In Stock</span></td>-->
 		<td>
 			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">

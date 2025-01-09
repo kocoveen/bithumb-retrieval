@@ -14,6 +14,10 @@ export default {
 		extend: {}
 	},
 
+	flyonui: {
+		themes: ['light']
+	},
+
 	// flyonui: {
 	// 	themes: false, // false: only light + dark | true: all themes | array: specific themes like this ["light", "dark", "soft"]
 	// 	darkTheme: 'dark', // name of one of the included themes for dark mode

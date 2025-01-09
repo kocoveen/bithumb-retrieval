@@ -1,7 +1,7 @@
 <script>
 	// import { onMount } from 'svelte';
 	const props = $props();
-	let orders = props.data.data;
+	let orders = props.data.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
 	const headerNames = ["거래일시", "자산", "거래구분", "거래수량", "체결가격", "거래금액", "수수료", "정산금액"]
 
@@ -125,6 +125,7 @@
 		"toggleSeparators": {
 			"betweenItemsAndCounter": "&"
 		},
+		"hasSearch": true,
 		"toggleCountText": "+",
 		"toggleCountTextPlacement": "prefix-no-space",
 		"toggleCountTextMinItems": 3,

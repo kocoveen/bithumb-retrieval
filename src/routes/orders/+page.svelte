@@ -3,7 +3,7 @@
 	const props = $props();
 	let orders = props.data.data;
 
-	const headerNames = ["거래일시", "자산", "거래구분", "거래수량", "체결가격", "거래금액", "수수료", "정산금액"];
+	const headerNames = ["거래일시", "자산", "거래구분", "거래수량", "체결가격", "거래금액", "수수료", "정산금액"]
 
 	// let options = {
 	// 	"pageLength": 5,
@@ -44,6 +44,7 @@
 	let fromDate = $state("");
 	let toDate = $state("");
 
+	let selectedAssets = $state([]); // 선택된 자산 값 저장
 	// 날짜 필터링 함수
 	function filterByDate() {
 		if (fromDate && toDate) {
@@ -56,6 +57,35 @@
 		} else {
 			filteredOrders = [...orders]; // 초기화
 		}
+	}
+
+	// 자산 필터링 함수
+	// function filterByAssets() {
+	// 	if (selectedAssets.length > 0) {
+	// 		filteredOrders = orders.filter((order) =>
+	// 			selectedAssets.includes(order.market)
+	// 		);
+	// 	} else {
+	// 		filteredOrders = [...orders]; // 초기화
+	// 	}
+	// }
+
+
+	// 날짜와 자산 필터를 결합
+	function applyAllFilters() {
+		filteredOrders = orders.filter((order) => {
+			const createdAt = new Date(order.created_at).getTime();
+			const from = fromDate ? new Date(fromDate).getTime() : 0;
+			const to = toDate ? new Date(toDate).getTime() : Infinity;
+			const matchesDate = createdAt >= from && createdAt <= to;
+
+			const matchesAssets =
+				selectedAssets.length > 0
+					? selectedAssets.includes(order.market)
+					: true;
+
+			return matchesDate && matchesAssets;
+		});
 	}
 
 	function getTotalValue() {
@@ -83,8 +113,39 @@
 		return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
 	}
 
+	let dataAssetsOptions = {
+		"placeholder": "찾을 자산을 선택하세요.",
+		"toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
+		"toggleClasses": "advance-select-toggle",
+		"toggleSeparators": {
+			"betweenItemsAndCounter": "&"
+		},
+		"toggleCountText": "+",
+		"toggleCountTextPlacement": "prefix-no-space",
+		"toggleCountTextMinItems": 3,
+		"toggleCountTextMode": "nItemsAndCount",
+		"dropdownClasses": "advance-select-menu max-h-44 vertical-scrollbar rounded-scrollbar",
+		"optionClasses": "advance-select-option selected:active",
+		"optionTemplate": "<div class=\"flex justify-between items-center w-full\"><span data-title></span><span class=\"icon-[tabler--check] flex-shrink-0 size-4 text-primary hidden selected:block \"></span></div>",
+		"extraMarkup": "<span class=\"icon-[tabler--caret-up-down] flex-shrink-0 size-4 text-base-content absolute top-1/2 end-3 -translate-y-1/2 \"></span>"
+	};
+
 	$effect(() => {
-		// const table = new HSDataTable("#dataTable")
+
+		window.addEventListener('load', () =>
+			requestAnimationFrame(() => {
+				(() => {
+					const clearBtn = document.querySelector('#clear-btn')
+
+					clearBtn.addEventListener('click', () => {
+						const clearSelectBtn = HSSelect.getInstance('#multi-cond-count', true)
+
+						clearSelectBtn.element.setValue([])
+					})
+				})()
+			})
+		)
+
 	});
 </script>
 
@@ -106,10 +167,9 @@
 <!--			<input type="search" class="input input-sm grow" id="filter-search" placeholder="Search for items" data-datatable-search="" />-->
 <!--		</div>-->
 
-		<div class="flex gap-3 mb-4">
+		<div class="flex gap-3">
 			<!-- 날짜 입력 -->
 			<div class="flex flex-wrap items-center justify-end">
-				<label for="fromDate">From:</label>
 				<input
 					type="date"
 					id="fromDate"
@@ -118,8 +178,8 @@
 					onchange={filterByDate}
 				/>
 			</div>
+			<div class="flex flex-wrap items-center justify-end"> ~ </div>
 			<div class="flex flex-wrap items-center justify-end">
-				<label for="toDate">To:</label>
 				<input
 					type="date"
 					id="toDate"
@@ -128,6 +188,31 @@
 					onchange={filterByDate}
 				/>
 			</div>
+		</div>
+
+		<div class="max-w-sm">
+			<select
+				id="multi-cond-count"
+				multiple
+				bind:value={selectedAssets}
+				onchange={applyAllFilters}
+				data-select='{JSON.stringify(dataAssetsOptions)}'
+				class="hidden"
+			>
+				<option value="">Choose</option>
+				{#each [...new Set(orders.map((order) => order.market))] as market}
+					<option value={market}>{market}</option>
+				{/each}
+			</select>
+		</div>
+
+		<div class="flex flex-wrap gap-2">
+			<button type="button" id="clear-btn" class="btn btn-outline btn-primary btn-sm" onclick={() => {
+    selectedAssets = [];
+    applyAllFilters();
+  }}>
+				Clear
+			</button>
 		</div>
 
 		<div class="flex flex-1 items-center justify-end gap-3">

@@ -1,7 +1,7 @@
 <script>
 	// import { onMount } from 'svelte';
 	const props = $props();
-	let orders = props.data.data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+	let orders = props.data.data.sort((a, b) => new Date(b.created_at).valueOf() - new Date(a.created_at).valueOf());
 
 	const headerNames = ["거래일시", "자산", "거래구분", "거래수량", "체결가격", "거래금액", "수수료", "정산금액"]
 
@@ -119,7 +119,7 @@
 
 
 	let dataAssetsOptions = {
-		"placeholder": "Select multiple options...",
+		"placeholder": "코인 선택",
 		"toggleTag": "<button type=\"button\" aria-expanded=\"false\"></button>",
 		"toggleClasses": "advance-select-toggle",
 		"toggleSeparators": {
@@ -130,29 +130,28 @@
 		"toggleCountTextPlacement": "prefix-no-space",
 		"toggleCountTextMinItems": 3,
 		"toggleCountTextMode": "nItemsAndCount",
-		"dropdownClasses": "advance-select-menu max-h-44 vertical-scrollbar rounded-scrollbar",
+		"dropdownClasses": "advance-select-menu max-h-60 vertical-scrollbar rounded-scrollbar",
 		"optionClasses": "advance-select-option selected:active",
 		"optionTemplate": "<div class=\"flex justify-between items-center w-full\"><span data-title></span><span class=\"icon-[tabler--check] flex-shrink-0 size-4 text-primary hidden selected:block \"></span></div>",
 		"extraMarkup": "<span class=\"icon-[tabler--caret-up-down] flex-shrink-0 size-4 text-base-content absolute top-1/2 end-3 -translate-y-1/2 \"></span>"
 	};
 
-	$effect(() => {
-
-		window.addEventListener('load', () =>
-			requestAnimationFrame(() => {
-				(() => {
-					const clearBtn = document.querySelector('#clear-btn')
-
-					clearBtn.addEventListener('click', () => {
-						const clearSelectBtn = HSSelect.getInstance('#multi-cond-count', true)
-
-						clearSelectBtn.element.setValue([])
-					})
-				})()
-			})
-		)
-
-	});
+	// 상태 변화에 따른 부작용 처리
+	// $effect(() => {
+	// 	window.addEventListener('load', () =>
+	// 		requestAnimationFrame(() => {
+	// 			(() => {
+	// 				const clearBtn = document.querySelector('#clear-btn')
+	//
+	// 				clearBtn.addEventListener('click', () => {
+	// 					const clearSelectBtn = HSSelect.getInstance('#multi-cond-count', true)
+	//
+	// 					clearSelectBtn.element.setValue([])
+	// 				})
+	// 			})()
+	// 		})
+	// 	)}
+	// );
 </script>
 
 <!--<div-->
@@ -160,9 +159,10 @@
 <!--	class="bg-base-100 flex flex-col rounded-md shadow &#45;&#45;prevent-on-load-init"-->
 <!--	data-datatable="{JSON.stringify(options)}"-->
 <!--&gt;-->
+<div class="flex justify-center">
 <div
 	id="datatable"
-	class="bg-base-100 flex flex-col rounded-md shadow --prevent-on-load-init"
+	class="w-10/12 bg-base-100 flex flex-col rounded-md shadow --prevent-on-load-init"
 >
 	<div class="border-base-content/25 flex items-center border-b px-5 py-3 gap-3">
 <!--		<div class="input-group max-w-[15rem]">-->
@@ -179,7 +179,7 @@
 				<input
 					type="date"
 					id="fromDate"
-					class="input input-floating input-sm peer"
+					class="input input-floating peer"
 					bind:value={fromDate}
 					onchange={filterByDate}
 				/>
@@ -189,14 +189,14 @@
 				<input
 					type="date"
 					id="toDate"
-					class="input input-floating input-sm peer"
+					class="input input-floating peer"
 					bind:value={toDate}
 					onchange={filterByDate}
 				/>
 			</div>
 		</div>
 
-		<div class="max-w-sm">
+		<div class="w-1/4">
 			<select
 				id="multi-cond-count"
 				multiple=""
@@ -214,9 +214,11 @@
 
 		<div class="flex flex-wrap gap-2">
 			<button type="button" id="clear-btn" class="btn btn-outline btn-primary btn-sm" onclick={() => {
+				const clearSelectBtn = HSSelect.getInstance('#multi-cond-count', true)
+				clearSelectBtn.element.setValue([])
 				selectedAssets = [];
 				applyAllFilters();
-  		}}>Clear</button>
+  		}}>코인 재설정</button>
 		</div>
 
 		<div class="flex flex-1 justify-end gap-3">
@@ -224,11 +226,11 @@
 				<div class="divide-y divide-gray-200">
 					<div class="px-4 py-5 sm:p-6 grid grid-cols-2 gap-4">
 						<div class="text font-medium">거래금액 합계</div>
-						<div class="text text-right" id="totalVolume">{formatNumber(getTotalValue())} KRW</div>
+						<div class="text text-right font-bold" id="totalVolume">{formatNumber(getTotalValue())} KRW</div>
 					</div>
 					<div class="px-4 py-5 sm:p-6 grid grid-cols-2 gap-4">
 						<div class="text font-medium">정산금액 합계</div>
-						<div class="text text-right" id="totalSettlement">{formatNumber(getTotalSettlement())} KRW</div>
+						<div class="text text-right font-bold" id="totalSettlement">{formatNumber(getTotalSettlement())} KRW</div>
 					</div>
 				</div>
 			</div>
@@ -263,20 +265,20 @@
 	<div class="horizontal-scrollbar overflow-x-auto">
 		<div class="inline-block min-w-full align-middle" >
 			<div class="overflow-hidden">
-				<table class="table min-w-full">
+				<table class="table table-fixed table-md min-w-full">
 					<thead>
-					<tr>
-<!--						<th scope="col" class="&#45;&#45;exclude-from-ordering w-3.5 pe-0">-->
-<!--							<div class="flex h-5 items-center">-->
-<!--								<input id="datatable-filter-select-all-rows" type="checkbox" class="checkbox checkbox-sm" />-->
-<!--								<label for="datatable-filter-select-all-rows" class="sr-only">Checkbox</label>-->
-<!--							</div>-->
-<!--						</th>-->
-						{#each headerNames as headerName}
-							{@render setTableHeaderName(headerName)}
-						{/each}
-						<th scope="col" class="--exclude-from-ordering">Actions</th>
-					</tr>
+						<tr>
+	<!--						<th scope="col" class="&#45;&#45;exclude-from-ordering w-3.5 pe-0">-->
+	<!--							<div class="flex h-5 items-center">-->
+	<!--								<input id="datatable-filter-select-all-rows" type="checkbox" class="checkbox checkbox-sm" />-->
+	<!--								<label for="datatable-filter-select-all-rows" class="sr-only">Checkbox</label>-->
+	<!--							</div>-->
+	<!--						</th>-->
+							{#each headerNames as headerName}
+								{@render setTableHeaderName(headerName)}
+							{/each}
+	<!--						<th scope="col" class="&#45;&#45;exclude-from-ordering">Actions</th>-->
+						</tr>
 					</thead>
 					<tbody>
 						{#each filteredOrders as order}
@@ -311,10 +313,11 @@
 <!--		</div>-->
 <!--	</div>-->
 </div>
+</div>
 
 {#snippet setTableHeaderName(name)}
-	<th scope="col" class="group w-fit">
-		<div class="flex items-center justify-between">
+	<th scope="col" class="">
+		<div class="flex items-center justify-between font-bold">
 			{name}
 			<span class="icon-[tabler--chevron-up] datatable-ordering-asc:block hidden"></span>
 			<span class="icon-[tabler--chevron-down] datatable-ordering-desc:block hidden"></span>
@@ -333,27 +336,40 @@
 <!--		<td class="text-nowrap">{createdAt}</td>-->
 		<td>{formatDate(order.created_at)}</td>
 		<td>{order.market}</td>
-		<td>{order.state}</td>
+		<td>
+			{#if order.state === 'done'}
+				<span class="badge badge-soft badge-success badge-sm">{order.state}</span>
+			{:else if order.state === "wait"}
+				<span class="badge badge-soft badge-warning badge-sm">{order.state}</span>
+			{:else if order.state === "cancel"}
+				<span class="badge badge-soft badge-error badge-sm">{order.state}</span>
+			{/if}
+		</td>
 		<td>{formatNumber(order.volume)}</td>
 		<td>{formatNumber(order.price)}</td>
 		<td>{formatNumber(order.volume * order.price)}</td> <!-- 거래 금액 -->
 		<td>{formatNumber(order.paid_fee)}</td> <!-- 수수료 -->
 		{#if order.side === 'bid'}
-			<td>-{formatNumber(order.volume * order.price - order.paid_fee)}</td>
+			<td class="text-blue-400 font-bold">
+				-{formatNumber(order.volume * order.price - order.paid_fee)}
+			</td>
 		{:else}
-			<td>{formatNumber(order.volume * order.price - order.paid_fee)}</td>
+			<td class="text-red-400 font-bold">
+				+{formatNumber(order.volume * order.price - order.paid_fee)}
+			</td>
 		{/if} <!-- 정산 금액 -->
+
 <!--		<td><span class="badge badge-soft badge-success badge-sm">In Stock</span></td>-->
-		<td>
-			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">
-				<span class="icon-[tabler--pencil] size-5"></span>
-			</button>
-			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">
-				<span class="icon-[tabler--trash] size-5"></span>
-			</button>
-			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">
-				<span class="icon-[tabler--dots-vertical] size-5"></span>
-			</button>
-		</td>
+<!--		<td>-->
+<!--			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">-->
+<!--				<span class="icon-[tabler&#45;&#45;pencil] size-5"></span>-->
+<!--			</button>-->
+<!--			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">-->
+<!--				<span class="icon-[tabler&#45;&#45;trash] size-5"></span>-->
+<!--			</button>-->
+<!--			<button class="btn btn-circle btn-text btn-sm" aria-label="Action button">-->
+<!--				<span class="icon-[tabler&#45;&#45;dots-vertical] size-5"></span>-->
+<!--			</button>-->
+<!--		</td>-->
 	</tr>
 {/snippet}

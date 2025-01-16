@@ -28,3 +28,16 @@ export function createOrderQuery(params) {
 
 	return query;
 }
+
+export function createTransactionsQuery(params) {
+	const { limit, page, order_by, state } = params;
+
+	let query = `limit=${limit}&page=${page}&order_by=${order_by}&state=${state}`;
+
+	// if (uuids && uuids.length > 0) {
+	// 	const uuid_query = uuids.map((uuid) => `uuids[]=${encodeURIComponent(uuid)}`).join('&');
+	// 	query += '&' + uuid_query;
+	// }
+
+	return query;
+}
